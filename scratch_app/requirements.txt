@@ -1,0 +1,9 @@
+streamlit==1.35.0
+torch
+torchvision
+pillow
+numpy
+opencv-python-headless
+gdown
+PyDrive
+oauth2client
