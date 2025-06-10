@@ -158,7 +158,7 @@ if uploaded_file:
                 st.success("✅ Detection Complete!")
 
                 # Upload to Google Drive (set your folder ID)
-                upload_to_drive(tmpfile.name, uploaded_file.name, folder_id="your_google_drive_folder_id")
+                upload_to_drive(tmpfile.name, uploaded_file.name, folder_id="1gu1nGR7jWaXnyz_Kao56aiMbyzZ0XD7x")
 
                 with open(tmpfile.name, "rb") as f:
                     st.download_button("📥 Download Result Image", f, file_name="scratch_detection_result.jpg", mime="image/jpeg")
