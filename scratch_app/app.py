@@ -46,12 +46,15 @@ model, device = load_model()
 @st.cache_resource
 def connect_service_drive():
     scope = ['https://www.googleapis.com/auth/drive']
-    creds = ServiceAccountCredentials.from_json_keyfile_name('service_account.json', scope)
+
+    creds_json_str = st.secrets["gdrive_service_account"]["json"]
+    creds_dict = json.loads(creds_json_str)
+
+    creds = ServiceAccountCredentials.from_json_keyfile_dict(creds_dict, scope)
+
     gauth = GoogleAuth()
     gauth.credentials = creds
     return GoogleDrive(gauth)
-
-drive = connect_service_drive()
 
 def upload_to_drive(file_path, filename, folder_id=None):
     file_drive = drive.CreateFile({
