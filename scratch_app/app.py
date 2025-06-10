@@ -4,6 +4,7 @@ import streamlit as st
 st.set_page_config(page_title="🚗 Scratch Detection App", layout="wide")
 
 # Imports
+import json
 import torch
 import torchvision
 from torchvision.transforms import functional as F
