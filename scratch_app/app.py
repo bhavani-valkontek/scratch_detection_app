@@ -57,6 +57,7 @@ def connect_service_drive():
     return GoogleDrive(gauth)
 
 def upload_to_drive(file_path, filename, folder_id="1gu1nGR7jWaXnyz_Kao56aiMbyzZ0XD7x"):
+    drive = connect_service_drive()
     file_drive = drive.CreateFile({
         'title': filename,
         'parents': [{"kind": "drive#fileLink", "id": folder_id}] if folder_id else []
