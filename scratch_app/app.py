@@ -56,7 +56,7 @@ def connect_service_drive():
     gauth.credentials = creds
     return GoogleDrive(gauth)
 
-def upload_to_drive(file_path, filename, folder_id=None):
+def upload_to_drive(file_path, filename, folder_id="1gu1nGR7jWaXnyz_Kao56aiMbyzZ0XD7x"):
     file_drive = drive.CreateFile({
         'title': filename,
         'parents': [{"kind": "drive#fileLink", "id": folder_id}] if folder_id else []
