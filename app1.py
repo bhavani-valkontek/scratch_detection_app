@@ -50,10 +50,6 @@ FINAL_FOLDER_ID = "12H5zu3Gjdh3sGvL_am8A7lEmHVvVOkVD"
 
 @st.cache_resource
 def load_model():
-    """
-    Loads and caches the Mask R-CNN model. Downloads from Hugging Face if not present locally.
-    """
-    st.info("⏳ Loading model... This may take a moment.")
 
     device = torch.device("cuda" if torch.cuda.is_available() else "cpu")
     model_path = "best_maskrcnn_model.pth"
