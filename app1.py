@@ -40,60 +40,57 @@ FINAL_FOLDER_ID = "12H5zu3Gjdh3sGvL_am8A7lEmHVvVOkVD"
 @st.cache_resource
 def load_model():
     """
-    Loads and caches the Mask R-CNN model. The model is downloaded from 
-    Google Drive if not present locally.
+    Loads and caches the Mask R-CNN model. Downloads from Hugging Face if not present locally.
     """
     st.info("⏳ Loading model... This may take a moment.")
-    
+
     device = torch.device("cuda" if torch.cuda.is_available() else "cpu")
     model_path = "best_maskrcnn_model.pth"
-    
-    # Download model from Google Drive only if it doesn't exist
-    if not os.path.exists(model_path):
-        st.info("📥 Downloading model from Google Drive (one-time operation)...")
 
-        # --- THIS IS THE FIX ---
-        # Use the direct download link format for Google Drive.
-        file_id = "1eiP0_Y5QDILTAJQFcK8hUZGzJPmrDevN"
-        url = "https://drive.google.com/file/d/1sClObDiwUWnlw5gFFQcPAGWtOMTsAyWR/view?usp=sharing"
-        # --- END OF FIX ---
-    
+    # Hugging Face model download URL
+    hf_url = "https://huggingface.co/mahigodike/scratch_detection/resolve/main/best_maskrcnn_model.pth"
+
+    # If model not found locally, download it
+    if not os.path.exists(model_path):
+        st.info("📥 Downloading model from Hugging Face (one-time operation)...")
+
         try:
-            gdown.download(url, output=model_path, quiet=False)
-            st.success("✅ Model downloaded successfully.")
+            hf_token = "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"  # 🔐 Replace with your real token or use secrets
+            headers = {"Authorization": f"Bearer {hf_token}"}
+            response = requests.get(hf_url, headers=headers)
+
+            if response.status_code == 200:
+                with open(model_path, 'wb') as f:
+                    f.write(response.content)
+                st.success("✅ Model downloaded successfully.")
+            else:
+                st.error(f"Failed to download model. Status code: {response.status_code}")
+                return None, None
+
         except Exception as e:
-            # If it still fails, the file might not be public
             st.error(f"Error downloading model: {e}")
-            st.error("Please ensure your Google Drive file is set to 'Anyone with the link can view'.")
             return None, None
 
-    # Define the Model Architecture...
-    device = torch.device("cuda" if torch.cuda.is_available() else "cpu")
+    # Load the model architecture
     model = torchvision.models.detection.maskrcnn_resnet50_fpn(weights=True)
-    
+
     # Replace the box predictor
     in_features = model.roi_heads.box_predictor.cls_score.in_features
     model.roi_heads.box_predictor = torchvision.models.detection.faster_rcnn.FastRCNNPredictor(in_features, 2)
-    
+
     # Replace the mask predictor
     in_features_mask = model.roi_heads.mask_predictor.conv5_mask.in_channels
     model.roi_heads.mask_predictor = torchvision.models.detection.mask_rcnn.MaskRCNNPredictor(in_features_mask, 256, 2)
-    
-    # Load your weights
-    try:
-        state_dict = torch.load(model_path, map_location=device, weights_only=False)
-    except Exception as e:
-        st.error(f"❌ Model loading failed: {e}")
-        st.stop()
 
+    # Load trained weights
+    state_dict = torch.load(model_path, map_location=device)
     model.load_state_dict(state_dict)
-    
+
     model.to(device)
     model.eval()
 
-    
     st.success("✅ Model loaded and ready!")
-    
+
     return model, device
 
 model, device = load_model()
