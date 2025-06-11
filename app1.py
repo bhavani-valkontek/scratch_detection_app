@@ -171,7 +171,7 @@ uploaded_file = st.file_uploader("Upload vehicle image", type=["jpg", "jpeg", "p
 if uploaded_file:
     image_data = uploaded_file.read()
     image = Image.open(io.BytesIO(image_data)).convert("RGB")
-    st.image(image, caption="Original", use_column_width=True)
+    st.image(image, caption="Original", use_container_width=True)
 
     if st.button("Run Detection"):
         original_name = f"original_{datetime.now().strftime('%Y%m%d_%H%M%S')}.jpg"
@@ -184,8 +184,8 @@ if uploaded_file:
             mask_img, overlay_img = create_mask_overlay(original_np, masks, scores)
 
             col1, col2 = st.columns(2)
-            col1.image(mask_img, caption="Scratch Mask", use_column_width=True)
-            col2.image(overlay_img, caption="Result Overlay", use_column_width=True)
+            col1.image(mask_img, caption="Scratch Mask", use_container_width=True)
+            col2.image(overlay_img, caption="Result Overlay", use_container_width=True)
 
             now = datetime.now().strftime('%Y%m%d_%H%M%S')
             upload_to_drive(mask_img, MASK_FOLDER_ID, f"mask_{now}.jpg")
