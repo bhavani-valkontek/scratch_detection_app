@@ -55,7 +55,7 @@ def load_model():
         file_id = "1eiP0_Y5QDILTAJQFcK8hUZGzJPmrDevN"
         url = f'https://drive.google.com/uc?id={file_id}'
         # --- END OF FIX ---
-        
+    
         try:
             gdown.download(url, model_path, quiet=False)
             st.success("✅ Model downloaded successfully.")
