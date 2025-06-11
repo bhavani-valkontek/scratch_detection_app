@@ -186,8 +186,8 @@ if uploaded_file:
             col1.image(mask_img, caption="Scratch Mask", use_container_width=True)
             col2.image(overlay_img, caption="Result Overlay", use_container_width=True)
             st.subheader("Scratches Detected:")
-            st.write(f"""sevierity:{severity:.1f}%
-                          Pixcels:{total_pixels}pxs""")
+            st.write(f"""sevierity:{severity:.1f}% 
+            Pixcels:{total_pixels}pxs""")
 
             now = datetime.now().strftime('%Y%m%d_%H%M%S')
             upload_to_drive(mask_img, MASK_FOLDER_ID, f"mask_{now}.jpg")
