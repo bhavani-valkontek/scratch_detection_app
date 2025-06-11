@@ -157,8 +157,8 @@ def create_mask_overlay(original_img, masks, scores):
 
     text = f"Severity: {severity:.1f}% | Confidence: {confidence:.1f}% "
     text1=f" Mask Pixels: {total_pixels}"
-    cv2.putText(overlayed, text, (10, 30), cv2.FONT_HERSHEY_SIMPLEX, 0.9, (0, 255, 0), 3)
-    cv2.putText(overlayed, text1, (10, 60), cv2.FONT_HERSHEY_SIMPLEX, 0.9, (255,0, 0), 3)
+    cv2.putText(overlayed, text, (10, 40), cv2.FONT_HERSHEY_SIMPLEX, 1.2, (0, 255, 0), 3)
+    cv2.putText(overlayed, text1, (10, 80), cv2.FONT_HERSHEY_SIMPLEX, 1.2, (255,0, 0), 3)
 
 
     return Image.fromarray(mask_overlay), Image.fromarray(overlayed), severity, total_pixels
@@ -186,15 +186,15 @@ if uploaded_file:
             col1.image(mask_img, caption="Scratch Mask", use_container_width=True)
             col2.image(overlay_img, caption="Result Overlay", use_container_width=True)
             st.subheader("Scratches Detected:")
-            st.write(f"""sevierity:{severity:.1f}% 
-            Pixcels:{total_pixels}pxs""")
+            st.write(f"sevierity:{severity:.1f}%") 
+            st.write(f"Pixcels:{total_pixels}pxs")
 
             now = datetime.now().strftime('%Y%m%d_%H%M%S')
             upload_to_drive(mask_img, MASK_FOLDER_ID, f"mask_{now}.jpg")
             upload_to_drive(overlay_img, FINAL_FOLDER_ID, f"overlay_{now}.jpg")
-            st.success("✅ All images uploaded to Google Drive.")
+            st.success("✅ All images saved sucessfully.")
             st.write("_____________________________________")
-            st.write("___________________Valkontel Embed Services________________")
+            st.write("___________________@Valkontel Embed Services________________")
         else:
             st.warning("No scratches detected.")
 
