@@ -15,7 +15,7 @@ import json
 import gdown
 import os
 
-SERVICE_ACCOUNT_PATH = "streamlit_account.json"
+SERVICE_ACCOUNT_PATH = "streamlit_uploader1.json"
 
 @st.cache_resource
 def load_drive():
