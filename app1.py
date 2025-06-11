@@ -37,28 +37,52 @@ FINAL_FOLDER_ID = "12H5zu3Gjdh3sGvL_am8A7lEmHVvVOkVD"
 
 @st.cache_resource
 def load_model():
+    """
+    Loads and caches the Mask R-CNN model. The model is downloaded from 
+    Google Drive if not present locally.
+    """
+    st.info("⏳ Loading model... This may take a moment.")
+    
     device = torch.device("cuda" if torch.cuda.is_available() else "cpu")
-    
-    # Download model from Google Drive if not already present
     model_path = "best_maskrcnn_model_k.pth"
-    if not os.path.exists(model_path):
-        # Paste your Google Drive **shareable link** below
-        url = "https://drive.google.com/file/d/1eiP0_Y5QDILTAJQFcK8hUZGzJPmrDevN/view?usp=sharing"  # 🔁 Replace with your real file ID
-        gdown.download(url, model_path, quiet=False)
-        st.success("✅ Model downloaded from Google Drive.")
-
-    # Load the model
-    model = torchvision.models.detection.maskrcnn_resnet50_fpn(pretrained=False)
-    model.roi_heads.box_predictor = torchvision.models.detection.faster_rcnn.FastRCNNPredictor(1024, 2)
-    model.roi_heads.mask_predictor = torchvision.models.detection.mask_rcnn.MaskRCNNPredictor(256, 256, 2)
     
-    state_dict = torch.load(model_path, map_location=device,weights_only=False)
-    model.load_state_dict(state_dict, strict=False)
+    # Download model from Google Drive only if it doesn't exist
+    if not os.path.exists(model_path):
+        st.info("📥 Downloading model from Google Drive (one-time operation)...")
+
+        # --- THIS IS THE FIX ---
+        # Use the direct download link format for Google Drive.
+        file_id = "1eiP0_Y5QDILTAJQFcK8hUZGzJPmrDevN"
+        url = f'https://drive.google.com/uc?id={file_id}'
+        # --- END OF FIX ---
+        
+        try:
+            gdown.download(url, model_path, quiet=False)
+            st.success("✅ Model downloaded successfully.")
+        except Exception as e:
+            # If it still fails, the file might not be public
+            st.error(f"Error downloading model: {e}")
+            st.error("Please ensure your Google Drive file is set to 'Anyone with the link can view'.")
+            return None, None
+
+    # Define the Model Architecture...
+    model = torchvision.models.detection.maskrcnn_resnet50_fpn(weights=None)
+    in_features = model.roi_heads.box_predictor.cls_score.in_features
+    model.roi_heads.box_predictor = torchvision.models.detection.faster_rcnn.FastRCNNPredictor(in_features, 2)
+    in_features_mask = model.roi_heads.mask_predictor.conv5_mask.in_channels
+    model.roi_heads.mask_predictor = torchvision.models.detection.mask_rcnn.MaskRCNNPredictor(in_features_mask, 256, 2)
+    
+    # Load the Weights (State Dictionary)
+    # Don't forget the fix from our previous conversation!
+    state_dict = torch.load(model_path, map_location=device, weights_only=False)
+    
+    model.load_state_dict(state_dict)
     model.to(device)
     model.eval()
     
+    st.success("✅ Model loaded and ready!")
+    
     return model, device
-
 
 model, device = load_model()
 
