@@ -158,11 +158,10 @@ def create_mask_overlay(original_img, masks, scores):
     text = f"Severity: {severity:.1f}% | Confidence: {confidence:.1f}% "
     text1=f" Mask Pixels: {total_pixels}"
     cv2.putText(overlayed, text, (10, 30), cv2.FONT_HERSHEY_SIMPLEX, 0.9, (0, 255, 0), 3)
-    cv2.putText(overlayed, text1, (10, 40), cv2.FONT_HERSHEY_SIMPLEX, 0.9, (255,0, 0), 3)
+    cv2.putText(overlayed, text1, (10, 60), cv2.FONT_HERSHEY_SIMPLEX, 0.9, (255,0, 0), 3)
 
 
-    return Image.fromarray(mask_overlay), Image.fromarray(overlayed)
-
+    return Image.fromarray(mask_overlay), Image.fromarray(overlayed), severity, total_pixels
 # Streamlit UI
 st.title("🚗 Vehicle Scratch Detection - PRO Version")
 
@@ -181,7 +180,7 @@ if uploaded_file:
             original_np, masks, scores = predict_image(image)
 
         if masks:
-            mask_img, overlay_img = create_mask_overlay(original_np, masks, scores)
+            mask_img, overlay_img,severity,total_pixels = create_mask_overlay(original_np, masks, scores)
 
             col1, col2 = st.columns(2)
             col1.image(mask_img, caption="Scratch Mask", use_container_width=True)
