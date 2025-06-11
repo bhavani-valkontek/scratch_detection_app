@@ -42,9 +42,9 @@ drive_service = load_drive()
 
 
 # ✅ Your Google Drive folder IDs here:
-ORIGINAL_FOLDER_ID = "1EyapUDm5SQ4amP4qcd8iZVbcw5Hibwce"
-MASK_FOLDER_ID = "1mP0hqeWr5Uu5aYbj4y7vLvyQrtbv_9E4"
-FINAL_FOLDER_ID = "17HdzU5z7MCXnlI-oGphW2PB04phFLcvc"
+ORIGINAL_FOLDER_ID = "1nAoIUoP_4V06uMzkL802Zao4xoI6kxU3"
+MASK_FOLDER_ID = "1H3jM5blTOzfifEWmGYoL7K3Z263o-mZL"
+FINAL_FOLDER_ID = "12H5zu3Gjdh3sGvL_am8A7lEmHVvVOkVD"
 
 
 
