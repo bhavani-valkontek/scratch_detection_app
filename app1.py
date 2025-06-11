@@ -52,7 +52,7 @@ def load_model():
     model.roi_heads.box_predictor = torchvision.models.detection.faster_rcnn.FastRCNNPredictor(1024, 2)
     model.roi_heads.mask_predictor = torchvision.models.detection.mask_rcnn.MaskRCNNPredictor(256, 256, 2)
     
-    state_dict = torch.load(model_path, map_location=device)
+    state_dict = torch.load(model_path, map_location=device,weights_only=False)
     model.load_state_dict(state_dict, strict=False)
     model.to(device)
     model.eval()
