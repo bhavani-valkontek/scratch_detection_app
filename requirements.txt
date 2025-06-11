@@ -1,20 +1,20 @@
 # Core App Dependencies
-streamlit==1.35.0
-torch==2.7.1
-torchvision==0.22.1
-numpy==1.26.4
-opencv-python-headless==4.9.0.80
-Pillow==10.1.0
+streamlit
+torch
+torchvision
+numpy
+opencv-python-headless
+Pillow
 
 # Google Drive API Dependencies
-google-api-python-client==2.122.0
-google-auth==2.29.0
-google-auth-oauthlib==1.2.0
-google-auth-httplib2==0.2.0
+google-api-python-client
+google-auth
+google-auth-oauthlib
+google-auth-httplib2
 
 # For Google Service Account
-google-api-core==2.18.0
-google-cloud-core==2.4.1
+google-api-core
+google-cloud-core
 
 # Extra for safe JSON and IO handling
-requests==2.32.2
+requests
