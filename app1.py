@@ -80,7 +80,12 @@ def load_model():
     model.roi_heads.mask_predictor = torchvision.models.detection.mask_rcnn.MaskRCNNPredictor(in_features_mask, 256, 2)
     
     # Load your weights
-    state_dict = torch.load(model_path, map_location=device)
+    try:
+        state_dict = torch.load(model_path, map_location=device, weights_only=False)
+    except Exception as e:
+        st.error(f"❌ Model loading failed: {e}")
+        st.stop()
+
     model.load_state_dict(state_dict)
     
     model.to(device)
