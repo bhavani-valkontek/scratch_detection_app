@@ -63,7 +63,7 @@ def load_model():
 
     # If model not found locally, download it
     if not os.path.exists(model_path):
-        st.info("📥 Downloading model from Hugging Face (one-time operation)...")
+        
 
         try:
             hf_token = "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"  # 🔐 Replace with your real token or use secrets
@@ -73,7 +73,7 @@ def load_model():
             if response.status_code == 200:
                 with open(model_path, 'wb') as f:
                     f.write(response.content)
-                st.success("✅ Model downloaded successfully.")
+                
             else:
                 st.error(f"Failed to download model. Status code: {response.status_code}")
                 return None, None
@@ -100,7 +100,7 @@ def load_model():
     model.to(device)
     model.eval()
 
-    st.success("✅ Model loaded and ready!")
+    
 
     return model, device
 
@@ -157,8 +157,8 @@ def create_mask_overlay(original_img, masks, scores):
 
     text = f"Severity: {severity:.1f}% | Confidence: {confidence:.1f}% "
     text1=f" Mask Pixels: {total_pixels}"
-    cv2.putText(overlayed, text, (10, 100), cv2.FONT_HERSHEY_SIMPLEX, 0.9, (0, 255, 0), 3)
-    cv2.putText(overlayed, text1, (10, 150), cv2.FONT_HERSHEY_SIMPLEX, 0.9, (0, 255, 0), 3)
+    cv2.putText(overlayed, text, (10, 30), cv2.FONT_HERSHEY_SIMPLEX, 0.9, (0, 255, 0), 3)
+    cv2.putText(overlayed, text1, (10, 40), cv2.FONT_HERSHEY_SIMPLEX, 0.9, (255,0, 0), 3)
 
 
     return Image.fromarray(mask_overlay), Image.fromarray(overlayed)
@@ -177,7 +177,7 @@ if uploaded_file:
         original_name = f"original_{datetime.now().strftime('%Y%m%d_%H%M%S')}.jpg"
         upload_to_drive(image, ORIGINAL_FOLDER_ID, original_name)
 
-        with st.spinner("Processing..."):
+        with st.spinner("Detecting Scratches..."):
             original_np, masks, scores = predict_image(image)
 
         if masks:
@@ -186,11 +186,16 @@ if uploaded_file:
             col1, col2 = st.columns(2)
             col1.image(mask_img, caption="Scratch Mask", use_container_width=True)
             col2.image(overlay_img, caption="Result Overlay", use_container_width=True)
+            st.subheader("Scratches Detected:")
+            st.write(f"""sevierity:{severity:.1f}%
+                          Pixcels:{total_pixels}pxs""")
 
             now = datetime.now().strftime('%Y%m%d_%H%M%S')
             upload_to_drive(mask_img, MASK_FOLDER_ID, f"mask_{now}.jpg")
             upload_to_drive(overlay_img, FINAL_FOLDER_ID, f"overlay_{now}.jpg")
             st.success("✅ All images uploaded to Google Drive.")
+            st.write("_____________________________________")
+            st.write("___________________Valkontel Embed Services________________")
         else:
             st.warning("No scratches detected.")
 
