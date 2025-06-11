@@ -44,7 +44,7 @@ def load_model():
     st.info("⏳ Loading model... This may take a moment.")
     
     device = torch.device("cuda" if torch.cuda.is_available() else "cpu")
-    model_path = "best_maskrcnn_model_k.pth"
+    model_path = "best_maskrcnn_model.pth"
     
     # Download model from Google Drive only if it doesn't exist
     if not os.path.exists(model_path):
@@ -53,11 +53,11 @@ def load_model():
         # --- THIS IS THE FIX ---
         # Use the direct download link format for Google Drive.
         file_id = "1eiP0_Y5QDILTAJQFcK8hUZGzJPmrDevN"
-        url = f'https://drive.google.com/uc?id={file_id}'
+        url = "https://drive.google.com/file/d/1sClObDiwUWnlw5gFFQcPAGWtOMTsAyWR/view?usp=sharing"
         # --- END OF FIX ---
     
         try:
-            gdown.download(id="1eiP0_Y5QDILTAJQFcK8hUZGzJPmrDevN", output=model_path, quiet=False)
+            gdown.download(url, output=model_path, quiet=False)
             st.success("✅ Model downloaded successfully.")
         except Exception as e:
             # If it still fails, the file might not be public
