@@ -150,15 +150,15 @@ def create_mask_overlay(original_img, masks, scores):
     all_y, all_x = np.where(np.sum(masks, axis=0) > 0.5)
     if len(all_x) > 0 and len(all_y) > 0:
         x1, y1, x2, y2 = int(np.min(all_x)), int(np.min(all_y)), int(np.max(all_x)), int(np.max(all_y))
-        cv2.rectangle(overlayed, (x1, y1), (x2, y2), (0, 255, 0), 5)
+        cv2.rectangle(overlayed, (x1, y1), (x2, y2), (0, 255, 0), 3)
 
     severity = (total_pixels / (h * w)) * 100
     confidence = np.mean(scores) * 100
 
     text = f"Severity: {severity:.1f}% | Confidence: {confidence:.1f}% "
     text1=f" Mask Pixels: {total_pixels}"
-    cv2.putText(overlayed, text, (10, 100), cv2.FONT_HERSHEY_SIMPLEX, 5, (0, 255, 0), 3)
-    cv2.putText(overlayed, text1, (10, 150), cv2.FONT_HERSHEY_SIMPLEX, 5, (0, 255, 0), 3)
+    cv2.putText(overlayed, text, (10, 100), cv2.FONT_HERSHEY_SIMPLEX, 0.9, (0, 255, 0), 3)
+    cv2.putText(overlayed, text1, (10, 150), cv2.FONT_HERSHEY_SIMPLEX, 0.9, (0, 255, 0), 3)
 
 
     return Image.fromarray(mask_overlay), Image.fromarray(overlayed)
