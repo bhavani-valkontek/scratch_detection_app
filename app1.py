@@ -12,6 +12,8 @@ from google.oauth2 import service_account
 from googleapiclient.discovery import build
 from googleapiclient.http import MediaIoBaseUpload
 import json
+import gdown
+import os
 
 SERVICE_ACCOUNT_PATH = "streamlit_account.json"
 
@@ -31,16 +33,32 @@ MASK_FOLDER_ID = "1H3jM5blTOzfifEWmGYoL7K3Z263o-mZL"
 FINAL_FOLDER_ID = "12H5zu3Gjdh3sGvL_am8A7lEmHVvVOkVD"
 
 
+
+
 @st.cache_resource
 def load_model():
     device = torch.device("cuda" if torch.cuda.is_available() else "cpu")
+    
+    # Download model from Google Drive if not already present
+    model_path = "best_maskrcnn_model_k.pth"
+    if not os.path.exists(model_path):
+        # Paste your Google Drive **shareable link** below
+        url = "https://drive.google.com/file/d/1eiP0_Y5QDILTAJQFcK8hUZGzJPmrDevN/view?usp=sharing"  # 🔁 Replace with your real file ID
+        gdown.download(url, model_path, quiet=False)
+        st.success("✅ Model downloaded from Google Drive.")
+
+    # Load the model
     model = torchvision.models.detection.maskrcnn_resnet50_fpn(pretrained=False)
     model.roi_heads.box_predictor = torchvision.models.detection.faster_rcnn.FastRCNNPredictor(1024, 2)
     model.roi_heads.mask_predictor = torchvision.models.detection.mask_rcnn.MaskRCNNPredictor(256, 256, 2)
-    model.load_state_dict(torch.load("best_maskrcnn_model_k.pth", map_location=device))
+    
+    state_dict = torch.load(model_path, map_location=device)
+    model.load_state_dict(state_dict, strict=False)
     model.to(device)
     model.eval()
+    
     return model, device
+
 
 model, device = load_model()
 
