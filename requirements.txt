@@ -4,7 +4,7 @@ torch==2.7.1
 torchvision==0.22.1        
 numpy==1.26.4
 opencv-python-headless==4.9.0.80
-Pillow==10.3.0
+Pillow==10.2.0
 
 # Google Drive API Dependencies
 google-api-python-client==2.122.0
