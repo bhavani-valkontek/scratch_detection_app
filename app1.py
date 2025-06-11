@@ -67,7 +67,7 @@ def load_model():
 
     # Define the Model Architecture...
     device = torch.device("cuda" if torch.cuda.is_available() else "cpu")
-    model = torchvision.models.detection.maskrcnn_resnet50_fpn(weights=None)
+    model = torchvision.models.detection.maskrcnn_resnet50_fpn(weights="True")
     
     # Replace the box predictor
     in_features = model.roi_heads.box_predictor.cls_score.in_features
