@@ -57,7 +57,7 @@ def load_model():
         # --- END OF FIX ---
     
         try:
-            gdown.download(url, model_path,fuzzy=True ,quiet=False)
+            gdown.download(id="1eiP0_Y5QDILTAJQFcK8hUZGzJPmrDevN", output=model_path, quiet=False)
             st.success("✅ Model downloaded successfully.")
         except Exception as e:
             # If it still fails, the file might not be public
