@@ -1,3 +1,4 @@
+
 import streamlit as st
 import torch
 import torchvision
@@ -15,7 +16,7 @@ import gdown
 import os
 import torch._classes
 
-# --- Google Drive Auth ---
+
 SERVICE_ACCOUNT_PATH = "streamlit_uploader1.json"
 
 @st.cache_resource
@@ -27,47 +28,67 @@ def load_drive():
 
 drive_service = load_drive()
 
-# Drive Folder IDs
+
+# ✅ Your Google Drive folder IDs here:
 ORIGINAL_FOLDER_ID = "1nAoIUoP_4V06uMzkL802Zao4xoI6kxU3"
 MASK_FOLDER_ID = "1H3jM5blTOzfifEWmGYoL7K3Z263o-mZL"
 FINAL_FOLDER_ID = "12H5zu3Gjdh3sGvL_am8A7lEmHVvVOkVD"
 
 
+
+
 @st.cache_resource
 def load_model():
+    """
+    Loads and caches the Mask R-CNN model. The model is downloaded from 
+    Google Drive if not present locally.
+    """
     st.info("⏳ Loading model... This may take a moment.")
-
+    
     device = torch.device("cuda" if torch.cuda.is_available() else "cpu")
     model_path = "best_maskrcnn_model.pth"
-
-    # Download from Google Drive if not present
+    
+    # Download model from Google Drive only if it doesn't exist
     if not os.path.exists(model_path):
-        st.info("📥 Downloading model from Google Drive...")
+        st.info("📥 Downloading model from Google Drive (one-time operation)...")
+
+        # --- THIS IS THE FIX ---
+        # Use the direct download link format for Google Drive.
         file_id = "1eiP0_Y5QDILTAJQFcK8hUZGzJPmrDevN"
-        url = f"https://drive.google.com/uc?id={file_id}"
+        url = "https://drive.google.com/file/d/1sClObDiwUWnlw5gFFQcPAGWtOMTsAyWR/view?usp=sharing"
+        # --- END OF FIX ---
+    
         try:
             gdown.download(url, output=model_path, quiet=False)
             st.success("✅ Model downloaded successfully.")
         except Exception as e:
-            st.error(f"❌ Error downloading model: {e}")
+            # If it still fails, the file might not be public
+            st.error(f"Error downloading model: {e}")
+            st.error("Please ensure your Google Drive file is set to 'Anyone with the link can view'.")
             return None, None
 
-    # Load model (no pretrained weights)
-    model = torchvision.models.detection.maskrcnn_resnet50_fpn(weights=None)
-
+    # Define the Model Architecture...
+    device = torch.device("cuda" if torch.cuda.is_available() else "cpu")
+    model = torchvision.models.detection.maskrcnn_resnet50_fpn(weights=True)
+    
+    # Replace the box predictor
     in_features = model.roi_heads.box_predictor.cls_score.in_features
     model.roi_heads.box_predictor = torchvision.models.detection.faster_rcnn.FastRCNNPredictor(in_features, 2)
-
+    
+    # Replace the mask predictor
     in_features_mask = model.roi_heads.mask_predictor.conv5_mask.in_channels
     model.roi_heads.mask_predictor = torchvision.models.detection.mask_rcnn.MaskRCNNPredictor(in_features_mask, 256, 2)
-
+    
+    # Load your weights
     state_dict = torch.load(model_path, map_location=device)
     model.load_state_dict(state_dict)
-
+    
     model.to(device)
     model.eval()
 
+    
     st.success("✅ Model loaded and ready!")
+    
     return model, device
 
 model, device = load_model()
@@ -112,6 +133,7 @@ def create_mask_overlay(original_img, masks, scores):
 
     overlayed = cv2.addWeighted(original_img, 1.0, mask_overlay, 0.6, 0)
 
+    # Single bounding box
     all_y, all_x = np.where(np.sum(masks, axis=0) > 0.5)
     if len(all_x) > 0 and len(all_y) > 0:
         x1, y1, x2, y2 = int(np.min(all_x)), int(np.min(all_y)), int(np.max(all_x)), int(np.max(all_y))
@@ -120,15 +142,15 @@ def create_mask_overlay(original_img, masks, scores):
     severity = (total_pixels / (h * w)) * 100
     confidence = np.mean(scores) * 100
 
-    text = f"Severity: {severity:.1f}% | Confidence: {confidence:.1f}%"
-    text1 = f"Mask Pixels: {total_pixels}"
-    cv2.putText(overlayed, text, (10, 100), cv2.FONT_HERSHEY_SIMPLEX, 2, (0, 255, 0), 3)
-    cv2.putText(overlayed, text1, (10, 150), cv2.FONT_HERSHEY_SIMPLEX, 2, (0, 255, 0), 3)
+    text = f"Severity: {severity:.1f}% | Confidence: {confidence:.1f}% "
+    text1=f" Mask Pixels: {total_pixels}"
+    cv2.putText(overlayed, text, (10, 100), cv2.FONT_HERSHEY_SIMPLEX, 5, (0, 255, 0), 3)
+    cv2.putText(overlayed, text1, (10, 150), cv2.FONT_HERSHEY_SIMPLEX, 5, (0, 255, 0), 3)
+
 
     return Image.fromarray(mask_overlay), Image.fromarray(overlayed)
 
-
-# --- Streamlit UI ---
+# Streamlit UI
 st.title("🚗 Vehicle Scratch Detection - PRO Version")
 
 uploaded_file = st.file_uploader("Upload vehicle image", type=["jpg", "jpeg", "png"])
@@ -142,7 +164,7 @@ if uploaded_file:
         original_name = f"original_{datetime.now().strftime('%Y%m%d_%H%M%S')}.jpg"
         upload_to_drive(image, ORIGINAL_FOLDER_ID, original_name)
 
-        with st.spinner("🔍 Processing..."):
+        with st.spinner("Processing..."):
             original_np, masks, scores = predict_image(image)
 
         if masks:
@@ -157,4 +179,5 @@ if uploaded_file:
             upload_to_drive(overlay_img, FINAL_FOLDER_ID, f"overlay_{now}.jpg")
             st.success("✅ All images uploaded to Google Drive.")
         else:
-            st.warning("😐 No scratches detected.")
+            st.warning("No scratches detected.")
+
