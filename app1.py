@@ -66,19 +66,24 @@ def load_model():
             return None, None
 
     # Define the Model Architecture...
-    model = torchvision.models.detection.maskrcnn_resnet50_fpn(weights=None)
-    in_features = model.roi_heads.box_predictor.cls_score.in_features
-    model.roi_heads.box_predictor = torchvision.models.detection.faster_rcnn.FastRCNNPredictor(in_features, 2)
-    in_features_mask = model.roi_heads.mask_predictor.conv5_mask.in_channels
-    model.roi_heads.mask_predictor = torchvision.models.detection.mask_rcnn.MaskRCNNPredictor(in_features_mask, 256, 2)
-    
-    # Load the Weights (State Dictionary)
-    # Don't forget the fix from our previous conversation!
-    state_dict = torch.load(model_path, map_location=device, weights_only=False)
-    
-    model.load_state_dict(state_dict)
-    model.to(device)
-    model.eval()
+ device = torch.device("cuda" if torch.cuda.is_available() else "cpu")
+model = torchvision.models.detection.maskrcnn_resnet50_fpn(weights=None)
+
+# Replace the box predictor
+in_features = model.roi_heads.box_predictor.cls_score.in_features
+model.roi_heads.box_predictor = torchvision.models.detection.faster_rcnn.FastRCNNPredictor(in_features, 2)
+
+# Replace the mask predictor
+in_features_mask = model.roi_heads.mask_predictor.conv5_mask.in_channels
+model.roi_heads.mask_predictor = torchvision.models.detection.mask_rcnn.MaskRCNNPredictor(in_features_mask, 256, 2)
+
+# Load your weights
+state_dict = torch.load(model_path, map_location=device)
+model.load_state_dict(state_dict)
+
+model.to(device)
+model.eval()
+
     
     st.success("✅ Model loaded and ready!")
     
