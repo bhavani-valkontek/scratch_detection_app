@@ -17,6 +17,7 @@ import os
 import torch._classes
 import requests
 import time
+from pytz import timezone
 
 @st.cache_resource
 def load_drive():
@@ -72,7 +73,7 @@ def save_data_to_csv_drive(filename, severity, confidence, pixels, folder_id, cs
         "severity": severity if severity != "none" else None,
         "confidence": confidence if confidence != "none" else None,
         "pixels": pixels if pixels != "none" else None,
-        "timestamp": datetime.now().strftime("%Y-%m-%d %H:%M:%S")
+        "timestamp": datetime.now(ist).strftime("%Y-%m-%d %H:%M:%S")
     }
     df = pd.concat([df, pd.DataFrame([new_row])], ignore_index=True)
 
@@ -240,7 +241,10 @@ if uploaded_file:
             st.write(f"sevierity:{severity:.1f}%") 
             st.write(f"Pixels:{total_pixels}pxs")
 
-            now = datetime.now().strftime('%Y%m%d_%H%M%S')
+           
+            ist = timezone('Asia/Kolkata')
+            now = datetime.now(ist).strftime('%Y%m%d_%H%M%S')
+
             upload_to_drive(mask_img, MASK_FOLDER_ID, f"mask_{now}.jpg")
             upload_to_drive(overlay_img, FINAL_FOLDER_ID, f"overlay_{now}.jpg")
             st.success("✅ All images saved sucessfully.")
