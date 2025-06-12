@@ -1,4 +1,4 @@
-
+import pandas
 import streamlit as st
 import torch
 import torchvision
@@ -249,7 +249,7 @@ if uploaded_file:
             <span style='color: white;'>___________________@</span>
             <span style='color: orange; font-weight: bold;'>Valkontek Embedded Services</span>
             """, unsafe_allow_html=True)
-            save_data_to_csv_drive(filename= f"overlay_{now}.jpg", severity=severity:.1f, confidence=confidence:.1f, pixels=Pixcels, folder_id="1QIIdYHFt-iWAd-jvE1KAESEzBjWkb3gv")
+            save_data_to_csv_drive(filename= f"overlay_{now}.jpg", severity=severity, confidence=confidence, pixels=Pixcels, folder_id="1QIIdYHFt-iWAd-jvE1KAESEzBjWkb3gv")
         
         else:
             st.warning("No scratches detected.")
