@@ -158,8 +158,8 @@ def create_mask_overlay(original_img, masks, scores):
 
     text = f"Severity: {severity:.1f}% | Confidence: {confidence:.1f}% "
     text1=f" Mask Pixels: {total_pixels}"
-    cv2.putText(overlayed, text, (10, 40), cv2.FONT_HERSHEY_SIMPLEX, font_scale, (0, 255, 0), 2.5)
-    cv2.putText(overlayed, text1, (10, 60), cv2.FONT_HERSHEY_SIMPLEX, font_scale, (0,255, 0), 2.5)
+    cv2.putText(overlayed, text, (10, 40), cv2.FONT_HERSHEY_SIMPLEX, font_scale, (0, 255, 0), 2)
+    cv2.putText(overlayed, text1, (10, 60), cv2.FONT_HERSHEY_SIMPLEX, font_scale, (0,255, 0), 2)
 
 
     return Image.fromarray(mask_overlay), Image.fromarray(overlayed), severity, total_pixels
