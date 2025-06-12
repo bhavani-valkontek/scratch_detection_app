@@ -16,6 +16,7 @@ import gdown
 import os
 import torch._classes
 import requests
+import time
 
 @st.cache_resource
 def load_drive():
@@ -173,11 +174,16 @@ if uploaded_file:
         upload_to_drive(image, ORIGINAL_FOLDER_ID, original_name)
 
         with st.spinner("Detecting Scratches..."):
+            start_time = time.time()
             original_np, masks, scores = predict_image(image)
+            end_time = time.time()
+            detection_time = end_time - start_time
+
 
         if masks:
             mask_img, overlay_img,severity,total_pixels = create_mask_overlay(original_np, masks, scores)
-
+            st.subheader("Results:")
+            st.write(f"🕒shown in: {detection_time:.2f} seconds")
             col1, col2 = st.columns(2)
             col1.image(mask_img, caption="Scratch Mask", use_container_width=True)
             col2.image(overlay_img, caption="Result Overlay", use_container_width=True)
