@@ -46,6 +46,51 @@ drive_service = load_drive()
 ORIGINAL_FOLDER_ID = "1nAoIUoP_4V06uMzkL802Zao4xoI6kxU3"
 MASK_FOLDER_ID = "1H3jM5blTOzfifEWmGYoL7K3Z263o-mZL"
 FINAL_FOLDER_ID = "12H5zu3Gjdh3sGvL_am8A7lEmHVvVOkVD"
+def save_data_to_csv_drive(filename, severity, confidence, pixels, folder_id, csv_name="scratch_data.csv"):
+    # Step 1: Search for existing CSV file in Drive
+    response = drive_service.files().list(q=f"name='{csv_name}' and '{folder_id}' in parents and mimeType='text/csv'",
+                                          spaces='drive',
+                                          fields='files(id, name)').execute()
+    files = response.get('files', [])
+    
+    file_id = None
+    if files:
+        file_id = files[0]['id']
+    
+    # Step 2: Load existing data if file exists
+    if file_id:
+        # Download existing CSV
+        request = drive_service.files().get_media(fileId=file_id)
+        fh = io.BytesIO()
+        downloader = MediaIoBaseUpload(fh, mimetype='text/csv')
+        fh.seek(0)
+        content = request.execute()
+        df = pd.read_csv(io.BytesIO(content))
+    else:
+        df = pd.DataFrame(columns=["filename", "severity", "confidence", "pixels", "timestamp"])
+
+    # Step 3: Append new row
+    new_row = {
+        "filename": filename,
+        "severity": round(severity, 2),
+        "confidence": round(confidence, 2),
+        "pixels": int(pixels),
+        "timestamp": datetime.now().strftime("%Y-%m-%d %H:%M:%S")
+    }
+    df = pd.concat([df, pd.DataFrame([new_row])], ignore_index=True)
+
+    # Step 4: Save and upload to Drive
+    buffer = io.BytesIO()
+    df.to_csv(buffer, index=False)
+    buffer.seek(0)
+    media = MediaIoBaseUpload(buffer, mimetype='text/csv')
+
+    if file_id:
+        drive_service.files().update(fileId=file_id, media_body=media).execute()
+    else:
+        drive_service.files().create(body={"name": csv_name, "parents": [folder_id]},
+                                     media_body=media).execute()
+
 
 
 
@@ -162,7 +207,7 @@ def create_mask_overlay(original_img, masks, scores):
     cv2.putText(overlayed, text1, (10, 70), cv2.FONT_HERSHEY_SIMPLEX, font_scale, (0,255, 0), 2)
 
 
-    return Image.fromarray(mask_overlay), Image.fromarray(overlayed), severity, total_pixels
+    return Image.fromarray(mask_overlay), Image.fromarray(overlayed), severity, total_pixels,confidence
 # Streamlit UI
 st.title("🚗 Vehicle Scratch Detection System")
 
@@ -185,7 +230,7 @@ if uploaded_file:
 
 
         if masks:
-            mask_img, overlay_img,severity,total_pixels = create_mask_overlay(original_np, masks, scores)
+            mask_img, overlay_img,severity,total_pixels,confidence = create_mask_overlay(original_np, masks, scores)
             st.subheader("Results:")
             st.write(f"🕒shown in: {detection_time:.2f} seconds")
             col1, col2 = st.columns(2)
@@ -204,6 +249,11 @@ if uploaded_file:
             <span style='color: white;'>___________________@</span>
             <span style='color: orange; font-weight: bold;'>Valkontek Embedded Services</span>
             """, unsafe_allow_html=True)
+            save_data_to_csv_drive(filename= f"overlay_{now}.jpg", severity=severity:.1f, confidence=confidence:.1f, pixels=Pixcels, folder_id="1QIIdYHFt-iWAd-jvE1KAESEzBjWkb3gv")
+        
         else:
             st.warning("No scratches detected.")
+            save_data_to_csv_drive(filename= f"overlay_{now}.jpg", severity="none", confidence="none", pixels="none", folder_id="1QIIdYHFt-iWAd-jvE1KAESEzBjWkb3gv")
+        
+            
 
