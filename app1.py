@@ -238,7 +238,7 @@ if uploaded_file:
             col2.image(overlay_img, caption="Result Overlay", use_container_width=True)
             st.subheader("Scratches Detected:")
             st.write(f"sevierity:{severity:.1f}%") 
-            st.write(f"Pixcels:{total_pixels}pxs")
+            st.write(f"Pixels:{total_pixels}pxs")
 
             now = datetime.now().strftime('%Y%m%d_%H%M%S')
             upload_to_drive(mask_img, MASK_FOLDER_ID, f"mask_{now}.jpg")
@@ -249,7 +249,7 @@ if uploaded_file:
             <span style='color: white;'>___________________@</span>
             <span style='color: orange; font-weight: bold;'>Valkontek Embedded Services</span>
             """, unsafe_allow_html=True)
-            save_data_to_csv_drive(filename= f"overlay_{now}.jpg", severity=severity, confidence=confidence, pixels=Pixcels, folder_id="1QIIdYHFt-iWAd-jvE1KAESEzBjWkb3gv")
+            save_data_to_csv_drive(filename= f"overlay_{now}.jpg", severity=severity, confidence=confidence, pixels=total_pixels, folder_id="1QIIdYHFt-iWAd-jvE1KAESEzBjWkb3gv")
         
         else:
             st.warning("No scratches detected.")
