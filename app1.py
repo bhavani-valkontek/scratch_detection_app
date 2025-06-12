@@ -19,6 +19,33 @@ import requests
 import time
 
 @st.cache_resource
+def load_drive():
+    # Load service account info from Streamlit secrets
+    creds_dict = {
+        "type": st.secrets["gcp_service_account"]["type"],
+        "project_id": st.secrets["gcp_service_account"]["project_id"],
+        "private_key_id": st.secrets["gcp_service_account"]["private_key_id"],
+        "private_key": st.secrets["gcp_service_account"]["private_key"],
+        "client_email": st.secrets["gcp_service_account"]["client_email"],
+        "client_id": st.secrets["gcp_service_account"]["client_id"],
+        "auth_uri": st.secrets["gcp_service_account"]["auth_uri"],
+        "token_uri": st.secrets["gcp_service_account"]["token_uri"],
+        "auth_provider_x509_cert_url": st.secrets["gcp_service_account"]["auth_provider_x509_cert_url"],
+        "client_x509_cert_url": st.secrets["gcp_service_account"]["client_x509_cert_url"],
+        "universe_domain": st.secrets["gcp_service_account"]["universe_domain"]
+    }
+
+    creds = service_account.Credentials.from_service_account_info(creds_dict)
+    return build("drive", "v3", credentials=creds)
+
+# Call the function to create drive service
+drive_service = load_drive()
+
+
+# ✅ Your Google Drive folder IDs here:
+ORIGINAL_FOLDER_ID = "1nAoIUoP_4V06uMzkL802Zao4xoI6kxU3"
+MASK_FOLDER_ID = "1H3jM5blTOzfifEWmGYoL7K3Z263o-mZL"
+FINAL_FOLDER_ID = "12H5zu3Gjdh3sGvL_am8A7lEmHVvVOkVD"
 
 def save_data_to_csv_drive(filename, severity, confidence, pixels, folder_id, csv_name="scratch_data.csv"):
     # Step 1: Search for existing CSV file in Drive
