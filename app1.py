@@ -56,7 +56,7 @@ def load_model():
     model_path = "best_maskrcnn_model.pth"
 
     # Hugging Face model download URL
-    hf_url = "https://huggingface.co/mahigodike/scratch_detection/resolve/main/best_maskrcnn_model.pth"
+    hf_url = "https://huggingface.co/babbilibhavani/scartch_detection/resolve/main/best_maskrcnn_model_k.pth"
 
     # If model not found locally, download it
     if not os.path.exists(model_path):
