@@ -63,7 +63,7 @@ def load_model():
         
 
         try:
-            hf_token = "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"  # 🔐 Replace with your real token or use secrets
+            hf_token = "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"  # 🔐 Replace with your real token or use secrets
             headers = {"Authorization": f"Bearer {hf_token}"}
             response = requests.get(hf_url, headers=headers)
 
@@ -196,7 +196,10 @@ if uploaded_file:
             upload_to_drive(overlay_img, FINAL_FOLDER_ID, f"overlay_{now}.jpg")
             st.success("✅ All images saved sucessfully.")
             st.write("_____________________________________")
-            st.write("___________________@Valkontel Embed Services________________")
+            st.markdown("""
+            <span style='color: white;'>___________________@</span>
+            <span style='color: orange; font-weight: bold;'>Valkontek Embedded Services</span>
+            """, unsafe_allow_html=True)
         else:
             st.warning("No scratches detected.")
 
