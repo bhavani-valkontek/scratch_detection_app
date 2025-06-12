@@ -257,6 +257,7 @@ if uploaded_file:
         
         else:
             st.warning("No scratches detected.")
+            ist = timezone('Asia/Kolkata')
             now = datetime.now(ist).strftime('%Y%m%d_%H%M%S')
             save_data_to_csv_drive(filename= f"overlay_{now}.jpg", severity="none", confidence="none", pixels="none", folder_id="1QIIdYHFt-iWAd-jvE1KAESEzBjWkb3gv")
         
