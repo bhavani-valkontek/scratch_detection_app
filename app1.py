@@ -1,4 +1,4 @@
-import pandas
+import pandas as pd
 import streamlit as st
 import torch
 import torchvision
@@ -19,51 +19,21 @@ import requests
 import time
 
 @st.cache_resource
-def load_drive():
-    # Load service account info from Streamlit secrets
-    creds_dict = {
-        "type": st.secrets["gcp_service_account"]["type"],
-        "project_id": st.secrets["gcp_service_account"]["project_id"],
-        "private_key_id": st.secrets["gcp_service_account"]["private_key_id"],
-        "private_key": st.secrets["gcp_service_account"]["private_key"],
-        "client_email": st.secrets["gcp_service_account"]["client_email"],
-        "client_id": st.secrets["gcp_service_account"]["client_id"],
-        "auth_uri": st.secrets["gcp_service_account"]["auth_uri"],
-        "token_uri": st.secrets["gcp_service_account"]["token_uri"],
-        "auth_provider_x509_cert_url": st.secrets["gcp_service_account"]["auth_provider_x509_cert_url"],
-        "client_x509_cert_url": st.secrets["gcp_service_account"]["client_x509_cert_url"],
-        "universe_domain": st.secrets["gcp_service_account"]["universe_domain"]
-    }
 
-    creds = service_account.Credentials.from_service_account_info(creds_dict)
-    return build("drive", "v3", credentials=creds)
-
-# Call the function to create drive service
-drive_service = load_drive()
-
-
-# ✅ Your Google Drive folder IDs here:
-ORIGINAL_FOLDER_ID = "1nAoIUoP_4V06uMzkL802Zao4xoI6kxU3"
-MASK_FOLDER_ID = "1H3jM5blTOzfifEWmGYoL7K3Z263o-mZL"
-FINAL_FOLDER_ID = "12H5zu3Gjdh3sGvL_am8A7lEmHVvVOkVD"
 def save_data_to_csv_drive(filename, severity, confidence, pixels, folder_id, csv_name="scratch_data.csv"):
     # Step 1: Search for existing CSV file in Drive
-    response = drive_service.files().list(q=f"name='{csv_name}' and '{folder_id}' in parents and mimeType='text/csv'",
-                                          spaces='drive',
-                                          fields='files(id, name)').execute()
+    response = drive_service.files().list(
+        q=f"name='{csv_name}' and '{folder_id}' in parents and mimeType='text/csv'",
+        spaces='drive',
+        fields='files(id, name)'
+    ).execute()
     files = response.get('files', [])
     
-    file_id = None
-    if files:
-        file_id = files[0]['id']
-    
+    file_id = files[0]['id'] if files else None
+
     # Step 2: Load existing data if file exists
     if file_id:
-        # Download existing CSV
         request = drive_service.files().get_media(fileId=file_id)
-        fh = io.BytesIO()
-        downloader = MediaIoBaseUpload(fh, mimetype='text/csv')
-        fh.seek(0)
         content = request.execute()
         df = pd.read_csv(io.BytesIO(content))
     else:
@@ -72,9 +42,9 @@ def save_data_to_csv_drive(filename, severity, confidence, pixels, folder_id, cs
     # Step 3: Append new row
     new_row = {
         "filename": filename,
-        "severity": round(severity, 2),
-        "confidence": round(confidence, 2),
-        "pixels": int(pixels),
+        "severity": severity if severity != "none" else None,
+        "confidence": confidence if confidence != "none" else None,
+        "pixels": pixels if pixels != "none" else None,
         "timestamp": datetime.now().strftime("%Y-%m-%d %H:%M:%S")
     }
     df = pd.concat([df, pd.DataFrame([new_row])], ignore_index=True)
@@ -88,8 +58,11 @@ def save_data_to_csv_drive(filename, severity, confidence, pixels, folder_id, cs
     if file_id:
         drive_service.files().update(fileId=file_id, media_body=media).execute()
     else:
-        drive_service.files().create(body={"name": csv_name, "parents": [folder_id]},
-                                     media_body=media).execute()
+        drive_service.files().create(
+            body={"name": csv_name, "parents": [folder_id]},
+            media_body=media
+        ).execute()
+
 
 
 
